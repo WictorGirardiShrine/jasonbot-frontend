@@ -1,12 +1,30 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { env } from "@/lib/env";
 import type {
+  CheckoutResponse,
+  FreeLimitErrorPayload,
+  PortalResponse,
+  SubscriptionSnapshot,
+} from "@/lib/types/billing";
+import { FREE_LIMIT_EXCEEDED_CODE } from "@/lib/types/billing";
+import type {
   CreateSessionResponse,
   Message,
   MessageWithFeedback,
   Session,
   StreamEvent,
 } from "@/lib/types/chat";
+
+export class FreeLimitExceededError extends Error {
+  readonly code = FREE_LIMIT_EXCEEDED_CODE;
+  readonly limit: number;
+  readonly used: number;
+  constructor(payload: FreeLimitErrorPayload) {
+    super(payload.message);
+    this.limit = payload.limit;
+    this.used = payload.used;
+  }
+}
 
 export type Me = {
   id: string;
@@ -88,12 +106,39 @@ export async function listMessages(sessionId: string): Promise<MessageWithFeedba
 }
 
 export async function sendMessage(sessionId: string, content: string): Promise<Message> {
+  const res = await authedFetch(`/sessions/${sessionId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ content }),
+  });
+  if (res.status === 402) {
+    const body = (await res.json().catch(() => null)) as Partial<FreeLimitErrorPayload> | null;
+    if (body && body.code === FREE_LIMIT_EXCEEDED_CODE) {
+      throw new FreeLimitExceededError(body as FreeLimitErrorPayload);
+    }
+  }
+  return jsonOrThrow(res, "POST /sessions/:id/messages");
+}
+
+export async function getSubscription(): Promise<SubscriptionSnapshot> {
+  return jsonOrThrow(await authedFetch("/billing/subscription"), "GET /billing/subscription");
+}
+
+export async function createCheckoutSession(
+  plan: "monthly" | "annual",
+): Promise<CheckoutResponse> {
   return jsonOrThrow(
-    await authedFetch(`/sessions/${sessionId}/messages`, {
+    await authedFetch("/billing/checkout-session", {
       method: "POST",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ plan }),
     }),
-    "POST /sessions/:id/messages",
+    "POST /billing/checkout-session",
+  );
+}
+
+export async function createPortalSession(): Promise<PortalResponse> {
+  return jsonOrThrow(
+    await authedFetch("/billing/portal-session", { method: "POST" }),
+    "POST /billing/portal-session",
   );
 }
 

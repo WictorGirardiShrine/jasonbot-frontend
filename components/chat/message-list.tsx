@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { sendMessage, streamResponse } from "@/lib/api/client";
+import { FreeLimitExceededError, sendMessage, streamResponse } from "@/lib/api/client";
 import type { MessageWithFeedback } from "@/lib/types/chat";
+import { useSubscriptionStore } from "@/lib/store/subscription-store";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
 import { HelpLink } from "./help-link";
@@ -19,7 +21,11 @@ export function MessageList({
   const router = useRouter();
   const [items, setItems] = useState<MessageWithFeedback[]>(initialMessages);
   const [busy, setBusy] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeUsage, setUpgradeUsage] = useState<{ used: number; limit: number } | undefined>();
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const bumpUsage = useSubscriptionStore((s) => s.bumpUsage);
+  const refreshSubscription = useSubscriptionStore((s) => s.refresh);
 
   useEffect(() => {
     setItems(initialMessages);
@@ -49,6 +55,7 @@ export function MessageList({
 
     try {
       const persistedUser = await sendMessage(sessionId, content);
+      bumpUsage();
       setItems((prev) =>
         prev.map((m) =>
           m.id === tempUserId ? { ...persistedUser, feedback: null } : m,
@@ -103,7 +110,13 @@ export function MessageList({
       setItems((prev) =>
         prev.filter((m) => m.id !== tempUserId && m.id !== tempAsstId),
       );
-      alert(err instanceof Error ? err.message : "Couldn't send message");
+      if (err instanceof FreeLimitExceededError) {
+        setUpgradeUsage({ used: err.used, limit: err.limit });
+        setUpgradeOpen(true);
+        void refreshSubscription();
+      } else {
+        alert(err instanceof Error ? err.message : "Couldn't send message");
+      }
     } finally {
       setBusy(false);
     }
@@ -137,6 +150,7 @@ export function MessageList({
         </div>
         <MessageInput onSubmit={submit} disabled={busy} />
       </div>
+      <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} usage={upgradeUsage} />
     </div>
   );
 }

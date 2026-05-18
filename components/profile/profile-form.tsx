@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/api/client";
+import { BillingSection } from "@/components/billing/billing-section";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(80),
@@ -95,6 +96,13 @@ export function ProfileForm({
           {isSubmitting ? "Saving…" : "Save"}
         </Button>
       </form>
+
+      <div>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Billing
+        </h2>
+        <BillingSection />
+      </div>
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-lg border bg-muted/30 p-4 text-sm">
         <dt className="text-muted-foreground">Role</dt>
