@@ -42,9 +42,14 @@ export function UpgradeModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-heading text-2xl">
-            You&apos;ve used your free messages today.
-          </DialogTitle>
+          <div className="flex items-center gap-2">
+            <DialogTitle className="font-heading text-2xl">
+              You&apos;ve used your free messages today.
+            </DialogTitle>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+              Beta test
+            </span>
+          </div>
           <DialogDescription>
             {usage
               ? `${usage.used} of ${usage.limit} daily messages used. Unlock unlimited coaching.`
@@ -60,7 +65,7 @@ export function UpgradeModal({
           >
             <span className="flex items-center gap-2">
               {pending === "annual" ? <Loader2 className="size-4 animate-spin" /> : null}
-              Annual — $64.80/year
+              Annual — $53.89/year
             </span>
             <span className="rounded-full bg-primary-foreground/15 px-2 py-0.5 text-xs font-semibold">
               Save 10%
@@ -74,7 +79,7 @@ export function UpgradeModal({
             disabled={pending !== null}
           >
             {pending === "monthly" ? <Loader2 className="size-4 animate-spin" /> : null}
-            Monthly — $6/month
+            Monthly — $4.99/month
           </Button>
 
           {error ? (

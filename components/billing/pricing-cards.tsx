@@ -117,10 +117,15 @@ export function PricingCards({ defaultPlan = "annual" }: { defaultPlan?: Plan })
 
         <Card className="border-primary/50 bg-secondary/40 shadow-md">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="font-heading text-2xl">
-                {selectedPlan === "monthly" ? "Monthly" : "Annual"}
-              </CardTitle>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <CardTitle className="font-heading text-2xl">
+                  {selectedPlan === "monthly" ? "Monthly" : "Annual"}
+                </CardTitle>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
+                  Beta test
+                </span>
+              </div>
               {selectedPlan === "annual" ? (
                 <span className="rounded-full bg-primary/15 px-3 py-0.5 text-xs font-semibold text-primary">
                   Save 10%
@@ -130,16 +135,16 @@ export function PricingCards({ defaultPlan = "annual" }: { defaultPlan?: Plan })
             <CardDescription>Unlimited coaching, anytime.</CardDescription>
             {selectedPlan === "monthly" ? (
               <p className="mt-3 text-4xl font-semibold">
-                $6<span className="text-base font-normal text-muted-foreground"> / month</span>
+                $4.99<span className="text-base font-normal text-muted-foreground"> / month</span>
               </p>
             ) : (
               <div className="mt-3">
                 <p className="text-4xl font-semibold">
-                  $64.80
+                  $53.89
                   <span className="text-base font-normal text-muted-foreground"> / year</span>
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Billed annually · $5.40/month equivalent
+                  Billed annually · $4.49/month equivalent
                 </p>
               </div>
             )}
@@ -164,9 +169,9 @@ export function PricingCards({ defaultPlan = "annual" }: { defaultPlan?: Plan })
                   Opening checkout…
                 </>
               ) : selectedPlan === "monthly" ? (
-                "Subscribe — $6/month"
+                "Subscribe — $4.99/month"
               ) : (
-                "Subscribe — $64.80/year"
+                "Subscribe — $53.89/year"
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">

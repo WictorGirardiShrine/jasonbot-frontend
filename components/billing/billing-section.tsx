@@ -9,8 +9,8 @@ import { useSubscriptionStore } from "@/lib/store/subscription-store";
 
 const PLAN_LABELS: Record<string, string> = {
   free: "Free",
-  monthly: "Monthly — $6/month",
-  annual: "Annual — $64.80/year",
+  monthly: "Monthly — $4.99/month",
+  annual: "Annual — $53.89/year",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -60,7 +60,14 @@ export function BillingSection() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Plan</p>
-          <p className="text-base font-semibold">{PLAN_LABELS[snap.plan] ?? snap.plan}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-base font-semibold">{PLAN_LABELS[snap.plan] ?? snap.plan}</p>
+            {snap.plan !== "free" ? (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+                Beta test
+              </span>
+            ) : null}
+          </div>
         </div>
         <span className="rounded-full bg-background px-3 py-1 text-xs font-medium">
           {STATUS_LABELS[snap.status] ?? snap.status}
